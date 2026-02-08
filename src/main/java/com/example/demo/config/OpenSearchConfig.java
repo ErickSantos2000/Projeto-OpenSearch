@@ -48,6 +48,7 @@ public class OpenSearchConfig {
         // jacksonJsonpMapper é o mapeador que faz a serialização JSON
         RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
 
+        // retorna a classe que sera usada pelo spring
         return new OpenSearchClient(transport);
 
     }

@@ -1,5 +1,9 @@
 package com.example.demo.model;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Livro {
 
     private String id;
@@ -11,5 +15,4 @@ public class Livro {
 
     public Livro() {}
 
-    // getters e setters
 }
