@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Livro;
-import com.example.demo.repository.LivroRepository;
+import com.example.demo.service.LivroService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,27 +15,27 @@ import java.util.List;
 public class LivroController {
 
     @Autowired
-    private LivroRepository livroRepository;
+    private LivroService livroService;
 
     @PostMapping
     public Livro criarLivro(@RequestBody Livro livro) throws IOException {
-        livroRepository.salvar(livro); // salva no OpenSearch
+        livroService.salvar(livro); // salva no OpenSearch
         return livro;
     }
 
     @GetMapping("/{id}")
     public Livro buscarLivro(@PathVariable String id) throws IOException {
-        return livroRepository.buscarPorId(id);
+        return livroService.buscarPorId(id);
     }
 
     @DeleteMapping("/{id}")
     public void deletarLivro(@PathVariable String id) throws IOException {
-        livroRepository.deletar(id);
+        livroService.deletar(id);
     }
 
     @GetMapping
     public List<Livro> listarTodos() throws IOException {
-        return livroRepository.buscarTodos();
+        return livroService.buscarTodos();
     }
 }
 
