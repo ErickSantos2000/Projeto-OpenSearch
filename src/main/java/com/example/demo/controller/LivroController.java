@@ -17,6 +17,23 @@ public class LivroController {
     @Autowired
     private LivroService livroService;
 
+    @GetMapping("/titulo")
+    public List<Livro> buscarPorTitulo(@RequestParam String titulo) throws IOException {
+        return livroService.buscaPorTitulo(titulo);
+    }
+
+    // Busca livros por autor
+    @GetMapping("/autor")
+    public List<Livro> buscarPorAutor(@RequestParam String autor) throws IOException {
+        return livroService.buscaPorAutor(autor);
+    }
+
+    // Busca livros por ano
+    @GetMapping("/ano")
+    public List<Livro> buscarPorAno(@RequestParam int ano) throws IOException {
+        return livroService.buscaPorAno(ano);
+    }
+
     @PostMapping
     public Livro criarLivro(@RequestBody Livro livro) throws IOException {
         livroService.salvar(livro); // salva no OpenSearch

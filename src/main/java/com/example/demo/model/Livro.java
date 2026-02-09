@@ -1,9 +1,9 @@
 package com.example.demo.model;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data // gera getters, setters, toString, equals e hashCode
+@AllArgsConstructor // // gera construtor com todos os atributos
 public class Livro {
 
     private String id;
