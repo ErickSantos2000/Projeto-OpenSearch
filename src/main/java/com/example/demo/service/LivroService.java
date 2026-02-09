@@ -2,14 +2,17 @@ package com.example.demo.service;
 
 // spring
 import com.example.demo.model.Livro;
-import org.opensearch.client.opensearch._types.FieldValue;
-import org.opensearch.client.opensearch.core.GetRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 // OpenSearch
 import org.opensearch.client.opensearch.OpenSearchClient; // cliente do OpenSearch
+import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.query_dsl.MatchQuery;
+import org.opensearch.client.opensearch._types.query_dsl.Query;
+import org.opensearch.client.opensearch._types.query_dsl.TermQuery;
 import org.opensearch.client.opensearch.core.IndexRequest; // indexar/Salvar
+import org.opensearch.client.opensearch.core.GetRequest;
 import org.opensearch.client.opensearch.core.GetResponse;  // resposta de busca
 import org.opensearch.client.opensearch.core.DeleteRequest; // deletar
 import org.opensearch.client.opensearch.core.SearchRequest; // buscar múltiplos
@@ -35,54 +38,100 @@ public class LivroService {
     private final String INDEX = "livros";
 
     public List<Livro> buscaPorTitulo(String titulo) throws IOException {
-        SearchResponse<Livro> resposta = client.search(new SearchRequest.Builder()
-                .index(INDEX)
-                .query(q -> q.match(m -> m
-                        .field("titulo")
-                        .query(FieldValue.of(titulo))))
-                .size(100)
-                .build(), Livro.class);
 
+        // cria a query do tipo match para o campo "titulo"
+        MatchQuery matchTitulo = new MatchQuery.Builder()
+                .field("titulo")
+                .query(FieldValue.of(titulo))
+                .build();
+
+        // encapsula o MatchQuery dentro de um Query
+        Query query = new Query.Builder()
+                .match(matchTitulo)
+                .build();
+
+        // cria a requisição de busca
+        SearchRequest request = new SearchRequest.Builder()
+                .index(INDEX)
+                .query(query)
+                .size(100)
+                .build();
+
+        // executa a busca no OpenSearch
+        SearchResponse<Livro> resposta = client.search(request, Livro.class);
+
+        // cria uma lista vazia para armazenar os livros encontrados
         List<Livro> resultado = new ArrayList<>();
         for (Hit<Livro> hit : resposta.hits().hits()) {
-            resultado.add(hit.source());
+            resultado.add(hit.source()); // converte o JSON retornado em objeto Livro
         }
+
         return resultado;
     }
 
     public List<Livro> buscaPorAutor(String autor) throws IOException {
-        SearchResponse<Livro> resposta = client.search(new SearchRequest.Builder()
-                .index(INDEX)
-                .query(q -> q.match(m -> m
-                        .field("autor")
-                        .query(FieldValue.of(autor))))
-                .size(100)
-                .build(), Livro.class);
 
+        // cria a query do tipo match para o campo "autor"
+        MatchQuery matchAutor = new MatchQuery.Builder()
+                .field("autor")
+                .query(FieldValue.of(autor))
+                .build();
+
+        // encapsula o MatchQuery dentro de um Query
+        Query query = new Query.Builder()
+                .match(matchAutor)
+                .build();
+
+        // cria a requisição de busca
+        SearchRequest request = new SearchRequest.Builder()
+                .index(INDEX)
+                .query(query)
+                .size(100)
+                .build();
+
+        // executa a busca no OpenSearch
+        SearchResponse<Livro> resposta = client.search(request, Livro.class);
+
+        // cria uma lista vazia para armazenar os livros encontrados
         List<Livro> resultado = new ArrayList<>();
         for (Hit<Livro> hit : resposta.hits().hits()) {
             resultado.add(hit.source());
         }
+
         return resultado;
     }
 
     public List<Livro> buscaPorAno(int ano) throws IOException {
-        SearchResponse<Livro> resposta = client.search(new SearchRequest.Builder()
-                .index(INDEX)
-                .query(q -> q.term(t -> t
-                        .field("anoPublicacao")
-                        .value(FieldValue.of(ano))))
-                .size(100)
-                .build(), Livro.class);
 
+        // cria a query do tipo term (ideal para campos numéricos)
+        TermQuery termAno = new TermQuery.Builder()
+                .field("anoPublicacao")
+                .value(FieldValue.of(ano))
+                .build();
+
+        // encapsula o TermQuery dentro de um Query
+        Query query = new Query.Builder()
+                .term(termAno)
+                .build();
+
+        // cria a requisição de busca
+        SearchRequest request = new SearchRequest.Builder()
+                .index(INDEX)
+                .query(query)
+                .size(100)
+                .build();
+
+        // executa a busca no OpenSearch
+        SearchResponse<Livro> resposta = client.search(request, Livro.class);
+
+        // cria uma lista vazia para armazenar os livros encontrados
         List<Livro> resultado = new ArrayList<>();
         for (Hit<Livro> hit : resposta.hits().hits()) {
             resultado.add(hit.source());
         }
+
         return resultado;
     }
-
-
 
     public void salvar(Livro livro) throws IOException {
         // criando a requisição de indexação manualmente
@@ -96,40 +145,52 @@ public class LivroService {
     }
 
     public Livro buscarPorId(String id) throws IOException { // metodo de busca por id
-        GetResponse<Livro> busca = client.get(new GetRequest.Builder() // cria um builder para requisição de busca
-                .index(INDEX) // define o indicide onde buscar
-                .id(id) // define o id do documento que queremos buscar
 
-                // finaliza a construção da requisição
-                .build(), Livro.class); // diz para converter o JSON retornado em um Objeto
+        // cria a requisição de busca por id
+        GetRequest request = new GetRequest.Builder()
+                .index(INDEX)
+                .id(id)
+                .build();
 
-                // verifica se o documento foi encontrado
-                if(busca.found()){
-                    return busca.source(); // se encontrado retorna obj livro
-                }
-                return null; // se não, retorna null
+        // executa a busca
+        GetResponse<Livro> busca = client.get(request, Livro.class);
+
+        // verifica se o documento foi encontrado
+        if (busca.found()) {
+            return busca.source(); // se encontrado retorna obj livro
+        }
+
+        return null; // se não, retorna null
     }
 
     public void deletar(String id) throws IOException {
-        client.delete(new DeleteRequest.Builder()
+
+        // cria a requisição de delete
+        DeleteRequest request = new DeleteRequest.Builder()
                 .index(INDEX)
                 .id(id)
-                .build());
+                .build();
+
+        client.delete(request);
     }
 
     public List<Livro> buscarTodos() throws IOException {
+
         // cria um builder para a requisição de busca
-        // resultado sera armazenado em busca
-        SearchResponse<Livro> resposta = client.search(new SearchRequest.Builder()
+        SearchRequest request = new SearchRequest.Builder()
                 .index(INDEX) // define o indice onde buscar
                 .size(100) // define o número máximo de resultados retornados
-                .build(), Livro.class); // inicializa a requisição e indica que o JSON será convertido para objetos
+                .build();
+
+        // executa a busca
+        SearchResponse<Livro> resposta = client.search(request, Livro.class);
 
         // cria uma lista vazia para armazenar os livros encontrados
         List<Livro> resultado = new ArrayList<>();
-        for (Hit<Livro> hit : resposta.hits().hits()) { // tera sobre cada “hit”, cada documento retornado pelo OpenSearch
+        for (Hit<Livro> hit : resposta.hits().hits()) { // itera sobre cada documento retornado
             resultado.add(hit.source());
         }
+
         return resultado;
     }
 }
