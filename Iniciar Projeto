@@ -1,0 +1,15 @@
+#Iniciar Projeto docker
+
+docker-compose up -d
+
+#Verificar Aplicação está rodamdo
+
+docker-compose ps
+
+#Procurar dentro do sweagger
+
+/api-docs
+
+#Documentação API
+
+http://localhost:8080/api-docs
