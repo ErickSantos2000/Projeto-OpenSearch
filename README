@@ -1,0 +1,48 @@
+#Iniciar Aplicação
+
+mvn spring-boot:run
+
+#Inicia a aplicação pelo docker
+
+docker-compose ps
+
+#Link Sweagger
+
+http://localhost:8080/swagger-ui/index.html
+
+#Inicializar OpenSearch
+
+./bin/opensearch
+
+#Verificação no banco
+
+curl -XGET http://localhost:9200 
+
+#Status Servidor Nginx 
+
+curl http://localhost:8082
+
+#Criar SNAPSHOT arquivo JAR
+
+mvn clean install
+
+#Excluir versão anterior do target 
+
+sudo chmod -R 777 target/
+
+#Inicia o DockerBiuld
+
+docker-compose up --build
+
+#Remove todos conatiners existente
+
+docker stop $(docker ps -aq)
+
+#Limpa todo o ambiente dos containers
+
+docker-compose down -v
+
+
+#Verifica Porta
+
+sudo lsof -i : IP
