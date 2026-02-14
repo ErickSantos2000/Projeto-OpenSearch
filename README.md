@@ -65,6 +65,10 @@ Uma vez que todos os serviços estejam em execução, você pode acessar a docum
     http://localhost:8080/swagger-ui.html
     ```
 
+    ```
+    Ao entrar no Swagger, vá em "Exprole" e digite:/api-docs
+    ```
+
 *   **Via Instância da API 1:**
     ```
     http://localhost:8081/swagger-ui.html
